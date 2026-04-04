@@ -6,6 +6,8 @@ import com.codelade.chordioapi.service.DebugUserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequestMapping("/api/v1/debug")
@@ -18,6 +20,11 @@ public class DebugUserController {
     @PostMapping("/users")
     public DebugUserResponseDto createUser(@RequestBody DebugUserCreateRequest request) {
         return debugUserService.createUser(request);
+    }
+
+    @GetMapping("/users")
+    public List<DebugUserResponseDto> getAllUsers() {
+        return debugUserService.getUsers();
     }
 
 }

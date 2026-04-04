@@ -9,6 +9,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class DebugUserServiceImpl implements DebugUserService {
@@ -22,5 +24,13 @@ public class DebugUserServiceImpl implements DebugUserService {
         BeanUtils.copyProperties(request, entity);
         entity.setPassword(request.getPassword());
         return userMapper.toDebug(userRepository.save(entity));
+    }
+
+    @Override
+    public List<DebugUserResponseDto> getUsers() {
+        return userRepository.findAll()
+                .stream()
+                .map(DebugUserResponseDto::new)
+                .toList();
     }
 }
