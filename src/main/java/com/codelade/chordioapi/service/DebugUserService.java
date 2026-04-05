@@ -11,5 +11,9 @@ public interface DebugUserService {
 
     List<DebugUserResponseDto> getUsers();
 
+    DebugUserResponseDto getUser(Long id);
+
+    DebugUserResponseDto updateUser(Long id, DebugUserCreateRequest request);
+
     void deleteUser(Long id);
 }

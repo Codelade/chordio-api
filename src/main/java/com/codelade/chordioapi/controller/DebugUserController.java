@@ -28,10 +28,22 @@ public class DebugUserController {
         return debugUserService.getUsers();
     }
 
+    @GetMapping("/users/{id}")
+    public DebugUserResponseDto getUser(@PathVariable Long id) {
+        return debugUserService.getUser(id);
+    }
+
+    @PutMapping("/users/{id}")
+    public DebugUserResponseDto updateUser(
+            @PathVariable Long id,
+            @RequestBody DebugUserCreateRequest request
+    ) {
+        return debugUserService.updateUser(id, request);
+    }
+
     @DeleteMapping("/users/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
         debugUserService.deleteUser(id);
         return ResponseEntity.noContent().build();
     }
-
 }

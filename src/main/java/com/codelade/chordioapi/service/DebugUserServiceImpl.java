@@ -30,8 +30,28 @@ public class DebugUserServiceImpl implements DebugUserService {
     public List<DebugUserResponseDto> getUsers() {
         return userRepository.findAll()
                 .stream()
-                .map(DebugUserResponseDto::new)
+                .map(userMapper::toDebug)
                 .toList();
+    }
+
+    @Override
+    public DebugUserResponseDto getUser(Long id) {
+        UserEntity entity = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        return userMapper.toDebug(entity);
+    }
+
+    @Override
+    public DebugUserResponseDto updateUser(Long id, DebugUserCreateRequest request) {
+        UserEntity entity = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        entity.setEmail(request.getEmail());
+        entity.setUserName(request.getUserName());
+        entity.setPassword(request.getPassword());
+        entity.setRole(request.getRole());
+
+        return userMapper.toDebug(userRepository.save(entity));
     }
 
     @Override
@@ -41,6 +61,4 @@ public class DebugUserServiceImpl implements DebugUserService {
         }
         userRepository.deleteById(id);
     }
-
-
 }
