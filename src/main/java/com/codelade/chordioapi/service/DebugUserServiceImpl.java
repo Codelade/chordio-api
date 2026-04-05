@@ -33,4 +33,14 @@ public class DebugUserServiceImpl implements DebugUserService {
                 .map(DebugUserResponseDto::new)
                 .toList();
     }
+
+    @Override
+    public void deleteUser(Long id) {
+        if (!userRepository.existsById(id)) {
+            throw new RuntimeException("User not found");
+        }
+        userRepository.deleteById(id);
+    }
+
+
 }

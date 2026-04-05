@@ -4,6 +4,7 @@ import com.codelade.chordioapi.dto.user.DebugUserCreateRequest;
 import com.codelade.chordioapi.dto.user.DebugUserResponseDto;
 import com.codelade.chordioapi.service.DebugUserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,6 +26,12 @@ public class DebugUserController {
     @GetMapping("/users")
     public List<DebugUserResponseDto> getAllUsers() {
         return debugUserService.getUsers();
+    }
+
+    @DeleteMapping("/users/{id}")
+    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
+        debugUserService.deleteUser(id);
+        return ResponseEntity.noContent().build();
     }
 
 }

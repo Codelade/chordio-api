@@ -10,4 +10,6 @@ public interface DebugUserService {
     DebugUserResponseDto createUser(DebugUserCreateRequest request);
 
     List<DebugUserResponseDto> getUsers();
+
+    void deleteUser(Long id);
 }
