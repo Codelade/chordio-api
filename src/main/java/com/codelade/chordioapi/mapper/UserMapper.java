@@ -1,20 +1,19 @@
 package com.codelade.chordioapi.mapper;
 
-import com.codelade.chordioapi.dto.user.DebugUserResponseDto;
+import com.codelade.chordioapi.dto.user.AdminUserResponseDto;
 import com.codelade.chordioapi.entity.UserEntity;
 import org.springframework.stereotype.Component;
 
 @Component
 public class UserMapper {
 
-    public DebugUserResponseDto toDebug(UserEntity entity) {
+    public AdminUserResponseDto toResponse(UserEntity entity) {
         if (entity == null) return null;
-        DebugUserResponseDto dto = new DebugUserResponseDto();
+        AdminUserResponseDto dto = new AdminUserResponseDto();
         dto.setId(entity.getId());
         dto.setEmail(entity.getEmail());
         dto.setUserName(entity.getUserName());
         dto.setRole(entity.getRole().name());
-        dto.setPassword(entity.getPassword());
         return dto;
     }
 }
