@@ -10,6 +10,7 @@ import com.codelade.chordioapi.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -18,79 +19,79 @@ public class AdminUserServiceImpl implements AdminUserService {
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public AdminUserResponseDto createUser(AdminUserCreateRequest request) {
-        validateEmailAvailable(request.getEmail());
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new EmailAlreadyExistsException(request.getEmail());
+        }
 
-        UserEntity entity = new UserEntity();
-        entity.setEmail(request.getEmail());
-        entity.setUserName(request.getUserName());
-        entity.setRole(request.getRole());
-        entity.setPassword(request.getPassword());
+        UserEntity user = new UserEntity();
+        user.setEmail(request.getEmail());
+        user.setUserName(request.getUserName());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setRole(request.getRole());
 
-        return userMapper.toResponse(userRepository.save(entity));
+        return userMapper.toResponse(userRepository.save(user));
     }
 
     @Override
     public Page<AdminUserResponseDto> listUsers(Pageable pageable) {
-        return userRepository.findAll(pageable)
-                .map(userMapper::toResponse);
+        return userRepository.findAll(pageable).map(userMapper::toResponse);
     }
 
     @Override
     public AdminUserResponseDto getUser(Long id) {
-        return userMapper.toResponse(findUserOrThrow(id));
+        UserEntity user = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException(id));
+
+        return userMapper.toResponse(user);
     }
 
     @Override
     public AdminUserResponseDto updateUser(Long id, AdminUserCreateRequest request) {
-        UserEntity entity = findUserOrThrow(id);
+        UserEntity user = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException(id));
 
-        if (!entity.getEmail().equals(request.getEmail())) {
-            validateEmailAvailable(request.getEmail());
+        if (!user.getEmail().equals(request.getEmail()) &&
+                userRepository.existsByEmail(request.getEmail())) {
+            throw new EmailAlreadyExistsException(request.getEmail());
         }
 
-        entity.setEmail(request.getEmail());
-        entity.setUserName(request.getUserName());
-        entity.setRole(request.getRole());
+        user.setEmail(request.getEmail());
+        user.setUserName(request.getUserName());
 
-        return userMapper.toResponse(userRepository.save(entity));
+        if (request.getPassword() != null && !request.getPassword().isBlank()) {
+            user.setPassword(passwordEncoder.encode(request.getPassword()));
+        }
+
+        user.setRole(request.getRole());
+
+        return userMapper.toResponse(userRepository.save(user));
     }
 
     @Override
     public void deleteUser(Long id) {
-        userRepository.delete(findUserOrThrow(id));
+        if (!userRepository.existsById(id)) {
+            throw new UserNotFoundException(id);
+        }
+        userRepository.deleteById(id);
     }
 
     @Override
     public Page<AdminUserResponseDto> searchUsers(String search, Pageable pageable) {
-        String term = normalizeSearch(search);
-        Long id = parseId(term);
+        if (search == null) search = "";
+
+        Long id = null;
+        try {
+            id = Long.parseLong(search);
+        } catch (NumberFormatException ignored) {}
 
         return userRepository
                 .findByIdIsOrEmailContainingIgnoreCaseOrUserNameContainingIgnoreCase(
-                        id, term, term, pageable
+                        id, search, search, pageable
                 )
                 .map(userMapper::toResponse);
-    }
-
-    private UserEntity findUserOrThrow(Long id) {
-        return userRepository.findById(id)
-                .orElseThrow(() -> new UserNotFoundException(id));
-    }
-
-    private void validateEmailAvailable(String email) {
-        if (userRepository.existsByEmail(email)) {
-            throw new EmailAlreadyExistsException(email);
-        }
-    }
-
-    private String normalizeSearch(String search) {
-        return (search == null || search.isBlank()) ? "" : search.trim();
-    }
-
-    private Long parseId(String term) {
-        return term.matches("\\d+") ? Long.valueOf(term) : null;
     }
 }

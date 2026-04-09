@@ -1,5 +1,6 @@
 package com.codelade.chordioapi.dto.auth;
 
+import com.codelade.chordioapi.security.Role;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -13,5 +14,5 @@ public class AuthResponseDto {
     private Long id;
     private String email;
     private String userName;
-    private String role;
+    private Role role;
 }

@@ -7,13 +7,12 @@ import org.springframework.stereotype.Component;
 @Component
 public class UserMapper {
 
-    public AdminUserResponseDto toResponse(UserEntity entity) {
-        if (entity == null) return null;
+    public AdminUserResponseDto toResponse(UserEntity user) {
         AdminUserResponseDto dto = new AdminUserResponseDto();
-        dto.setId(entity.getId());
-        dto.setEmail(entity.getEmail());
-        dto.setUserName(entity.getUserName());
-        dto.setRole(entity.getRole().name());
+        dto.setId(user.getId());
+        dto.setEmail(user.getEmail());
+        dto.setUserName(user.getUserName());
+        dto.setRole(user.getRole());
         return dto;
     }
 }
